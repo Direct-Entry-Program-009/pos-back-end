@@ -100,8 +100,13 @@ public class CustomerServlet extends HTTPServlet2 {
 
     }
 
-    private void searchPaginatedCustomers(String query,int size, int page, HttpServletResponse response){
+    private void searchPaginatedCustomers(String query,int size, int page, HttpServletResponse response) throws IOException {
+        try (Connection connection = pool.getConnection()) {
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Failed to load the customers");
+        }
     }
     private void getCustomerDetails(String customerId, HttpServletResponse response){
 
