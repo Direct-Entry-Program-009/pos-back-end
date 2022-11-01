@@ -109,6 +109,7 @@ public class CustomerServlet extends HTTPServlet2 {
 
     private void getOrderDetails(HttpServletResponse request,HttpServletResponse response){
 
+
     }
 
 
