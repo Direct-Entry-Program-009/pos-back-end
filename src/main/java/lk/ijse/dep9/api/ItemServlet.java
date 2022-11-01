@@ -21,13 +21,31 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 @WebServlet(name = "ItemServlet", value = "/items")
-public class ItemServlet<ConnectionPool> extends HTTPServlet2 {
+public class ItemServlet extends HTTPServlet2 {
 
     @Resource(lookup = "java:/comp/env/jdbc/dep9_pos")
     private DataSource pool;
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        loadAllItems(HttpServletRequest request, HttpServletResponse response);
+//        if(request.getPathInfo()==null || request.getPathInfo().equals("/")){
+//            String query = request.getParameter("q");
+//            String page = request.getParameter("page");
+//            String size = request.getParameter("size");
+//
+//            if (query!=null && page!=null && size!=null){
+//                if(!(page.matches("\\d+")) || !(size.matches("\\d+"))){
+//                    response.sendError(HttpServletResponse.SC_BAD_REQUEST,"Invalid page or size");
+//                }else {
+//
+//                }
+//            }else{
+//                try {
+//                    //loadAllItems(response);
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Failed to load customers");
+//                }
+//            }
     }
 
     @Override
@@ -45,6 +63,34 @@ public class ItemServlet<ConnectionPool> extends HTTPServlet2 {
         super.doDelete(req, resp);
     }
     private void loadAllItems(HttpServletResponse response) throws SQLException, IOException {
+        try(Connection connection = pool.getConnection()) {
+            Statement stm = connection.createStatement();
+            ResultSet rst = stm.executeQuery("SELECT * FROM item");
+
+            ArrayList<ItemDTO> items = new ArrayList<>();
+
+            while (rst.next()) {
+                int stock = Integer.parseInt(rst.getString("stock"));
+                String unit_price = rst.getString("unit_price");
+                BigDecimal description = rst.getBigDecimal("description");
+                String code = rst.getString("code");
+
+                ItemDTO dto = new ItemDTO(stock, unit_price, description, code);
+                items.add(dto);
+            }
+
+            JsonbConfig config = new JsonbConfig();
+            config.withPropertyOrderStrategy();
+            Jsonb jsonb = JsonbBuilder.create();
+            response.setContentType("application/json");
+            jsonb.toJson(items, response.getWriter());
+
+        }catch (ClassNotFoundException | SQLException e){
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED,"Failed to load items");
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void searchPaginatedItems(String query,int size, int page, HttpServletResponse response){
@@ -54,3 +100,4 @@ public class ItemServlet<ConnectionPool> extends HTTPServlet2 {
 
     }
 }
+
