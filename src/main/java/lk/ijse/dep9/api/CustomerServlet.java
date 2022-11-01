@@ -106,4 +106,10 @@ public class CustomerServlet extends HTTPServlet2 {
     private void getCustomerDetails(String customerId, HttpServletResponse response){
 
     }
+
+    private void getOrderDetails(HttpServletResponse request,HttpServletResponse response){
+
+    }
+
+
 }
