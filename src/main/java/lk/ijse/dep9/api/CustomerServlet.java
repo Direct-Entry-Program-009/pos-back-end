@@ -44,6 +44,7 @@ public class CustomerServlet extends HTTPServlet2 {
                     response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Failed to load customers");
                 }
             }
+
         }else{
             Matcher matcher = Pattern.compile("^/([A-Fa-f0-9]{8}(-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12})/?$").matcher(request.getPathInfo());
             if(matcher.matches()){
@@ -104,6 +105,6 @@ public class CustomerServlet extends HTTPServlet2 {
 
     }
     private void getCustomerDetails(String customerId, HttpServletResponse response){
-
+        System.out.println("");
     }
 }
