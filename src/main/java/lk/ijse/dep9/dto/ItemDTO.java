@@ -7,6 +7,11 @@ public class ItemDTO implements Serializable {
     private int stock;
     private String description;
     private BigDecimal unitPrice;
+
+    public ItemDTO(String description) {
+        this.description = description;
+    }
+
     private String code;
 
     @Override
