@@ -11,10 +11,7 @@ import lk.ijse.dep9.util.HTTPServlet2;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,9 +57,37 @@ public class CustomerServlet extends HTTPServlet2 {
     }
 
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doDelete(req, resp);
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        if (request.getPathInfo() == null ||request.getPathInfo().equals("/")){
+            response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
+            return;
+        }
+        Matcher matcher = Pattern.compile("^/([A-Fa-f0-9]{8}(-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12})/?$")
+                .matcher(request.getPathInfo());
+        if (matcher.matches()){
+            deleteCustomer(matcher.group(1), response);
+        } else {
+            response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Expected valid UUID");
+        }
+
     }
+    private  void deleteCustomer(String customerId, HttpServletResponse response){
+        try (Connection connection = pool.getConnection()) {
+            PreparedStatement stm = connection.prepareStatement("DELETE FROM customer WHERE id = ?");
+            stm.setString(1,customerId);
+            int affectedRows = stm.executeUpdate();
+            if (affectedRows == 0){
+                response.sendError(HttpServletResponse.SC_NOT_FOUND,"Invalid customer Id");
+            }else{
+                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            }
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     @Override
     protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
