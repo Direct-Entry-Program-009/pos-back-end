@@ -19,7 +19,9 @@ import java.util.ArrayList;
 public class ItemServlet extends HTTPServlet2 {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        private void loadAllItems(){
 
+        }
     }
 
     @Override
