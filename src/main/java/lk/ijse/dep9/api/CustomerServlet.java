@@ -59,7 +59,7 @@ public class CustomerServlet extends HTTPServlet2 {
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        if (request.getPathInfo() == null ||request.getPathInfo().equals("/")){
+        if (request.getPathInfo() == null || request.getPathInfo().equals("/")){
             response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
             return;
         }
