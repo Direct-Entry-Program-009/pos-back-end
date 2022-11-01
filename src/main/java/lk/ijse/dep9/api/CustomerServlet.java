@@ -11,10 +11,7 @@ import lk.ijse.dep9.util.HTTPServlet2;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -104,7 +101,25 @@ public class CustomerServlet extends HTTPServlet2 {
     private void searchPaginatedCustomers(String query,int size, int page, HttpServletResponse response){
 
     }
-    private void getCustomerDetails(String customerId, HttpServletResponse response){
-        System.out.println("");
+    private void getCustomerDetails(String customerId, HttpServletResponse response) throws IOException {
+        try(Connection connection = pool.getConnection()){
+            PreparedStatement stm = connection.prepareStatement("SELECT * FROM customer WHERE id=?");
+            stm.setString(1, customerId);
+            ResultSet rst = stm.executeQuery();
+
+            if (rst.next()){
+                String id = rst.getString("id");
+                String name = rst.getString("name");
+                String address = rst.getString("address");
+                response.setContentType("application/json");
+                JsonbBuilder.create().toJson(new CustomerDTO(id, name, address), response.getWriter());
+            } else {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Invalid customer id");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to execute the query");
+        }
     }
 }
