@@ -1,5 +1,6 @@
 package lk.ijse.dep9.api;
 
+import jakarta.annotation.Resource;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.servlet.*;
@@ -8,15 +9,16 @@ import jakarta.servlet.annotation.*;
 import lk.ijse.dep9.dto.CustomerDTO;
 import lk.ijse.dep9.util.HTTPServlet2;
 
+import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 
 @WebServlet(name = "ItemServlet", value = "/items")
 public class ItemServlet extends HTTPServlet2 {
+
+    @Resource(lookup = "java:/comp/env/jdbc/dep9_pos")
+    private DataSource pool;
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
@@ -42,7 +44,28 @@ public class ItemServlet extends HTTPServlet2 {
     private void searchPaginatedItems(String query,int size, int page, HttpServletResponse response){
 
     }
-    private void getItemDetails(String customerId, HttpServletResponse response){
+    private void getItemDetails(String itemCode, HttpServletResponse response){
+//        try {
+//            Connection connection = pool.getConnection();
+//            PreparedStatement stm = connection.prepareStatement("SELECT * FROM item WHERE id=?");
+//            stm.setString(1,itemCode);
+//            ResultSet rst = stm.executeQuery();
+//
+//            if(rst.next()){
+//                String id = rst.getString("id");
+//                String name = rst.getString("name");
+//                String address = rst.getString("address");
+//                String contact = rst.getString("contact");
+//                response.setContentType("application/json");
+//                JsonbBuilder.create().toJson(new MemberDTO(id, name, address, contact),response.getWriter());
+//            }else {
+//                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Invalid member id");
+//            }
 
+
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Fail to Fetch members");
+//        }
     }
 }
