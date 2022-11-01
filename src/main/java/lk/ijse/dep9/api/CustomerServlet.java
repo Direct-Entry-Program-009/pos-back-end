@@ -111,7 +111,7 @@ public class CustomerServlet extends HTTPServlet2 {
 
             ResultSet rst = stm1.executeQuery();
             rst.next();
-            int totalCount = rst.getInt("count");
+            response.setIntHeader("X-Total-Count",rst.getInt("count"));
 
             rst = stm2.executeQuery();
 
