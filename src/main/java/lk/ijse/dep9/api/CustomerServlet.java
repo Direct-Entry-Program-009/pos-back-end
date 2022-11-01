@@ -98,8 +98,40 @@ public class CustomerServlet extends HTTPServlet2 {
 
     }
 
-    private void searchPaginatedCustomers(String query,int size, int page, HttpServletResponse response){
+    private void searchPaginatedCustomers(String query,int size, int page, HttpServletResponse response) throws IOException {
+        try (Connection connection = pool.getConnection()) {
+            PreparedStatement stm1 = connection.prepareStatement("SELECT COUNT(id) AS count FROM dep9_pos.customer WHERE id LIKE ? OR name LIKE ? OR address LIKE ?");
+            PreparedStatement stm2 = connection.prepareStatement("SELECT * FROM dep9_pos.customer WHERE id LIKE ? OR name LIKE ? OR address LIKE ? LIMIT ? OFFSET ?");
+            query = "%"+query+"%";
+            for (int i = 1; i <= 3; i++) {
+                stm1.setString(i,query);
+                stm2.setString(i,query);
+            }
+            stm2.setInt(4,size);
+            stm2.setInt(5,(page - 1) * size);
 
+            ResultSet rst = stm1.executeQuery();
+            rst.next();
+            response.setIntHeader("X-Total-Count",rst.getInt("count"));
+
+            rst = stm2.executeQuery();
+
+            ArrayList<CustomerDTO> customers = new ArrayList<>();
+            while(rst.next()){
+                String id = rst.getString("id");
+                String name = rst.getString("name");
+                String address = rst.getString("address");
+
+                customers.add(new CustomerDTO(id,name,address));
+            }
+            response.setContentType("application/json");
+            JsonbBuilder.create().toJson(customers,response.getWriter());
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Failed to load the customers");
+        }
     }
     private void getCustomerDetails(String customerId, HttpServletResponse response) throws IOException {
         try(Connection connection = pool.getConnection()){
